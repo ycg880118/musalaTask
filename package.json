@@ -1,0 +1,26 @@
+{
+  "name": "musalaTask",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ycg880118/musalaTask.git"
+  },
+  "keywords": [],
+  "author": "Yoan Cruz Gonzalez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ycg880118/musalaTask/issues"
+  },
+  "dependencies": {    
+    "express": "^4.7.1",
+    "mongodb": "^4.2.1",
+    "mongoose": "^5.10.0",
+    "mongoose-autopopulate": "^0.16.0"
+  },
+  "homepage": "https://github.com/ycg880118/musalaTask#readme"
+}
