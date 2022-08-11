@@ -1,7 +1,7 @@
 const express = require('express');
-const router = express. Router();
+const router = express.Router();
 
-const {Gateway,Peripheral} = require('../models/models').default
+const {Gateway,Peripheral} = require('../models/models')
 
 
 router.get('/' , async (req, res) =>{

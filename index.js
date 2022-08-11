@@ -1,12 +1,13 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
-
-const {mongoose} = require('./database').default;
+require('./database');
 
 const app= express();
 
 //Settings
-app.set('port',process.env.PORT || 3000);
+//app.set('port',process.env.PORT || 3000);
+let port=process.env.PORT || 3000;
 
 //Middlewares
 app.use(express.json());
@@ -19,7 +20,6 @@ app.use( '/api/peripheral',require('./routes/peripheralroutes'));
 app.use(express.static(path.join(__dirname,'public')));
 
 //Starting the server
-app.listen(3000, ()=> {
-    console.log('server on port 3000');
-
+app.listen(port, ()=> {
+    console.log(`Server started on port ${port}`);
 });

@@ -1,23 +1,31 @@
 const express = require('express');
 const router = express. Router();
+const {Gateway,Peripheral} = require('../models/models');
 
-const {Gateway,Peripheral} = require('../models/models').default
-
-router.get('/' , async (req, res) =>{
-   Gateway.find()
-    .populate("peripherals")
-   .then(gateway => {
-      res.json(gateway); 
-   });
+//List all gateways
+router.get('/' , async (req, res) =>{    
+    let gatewayList=await getAllGateways();
+    res.status(200).json(gatewayList);    
 });
+async function getAllGateways(){
+    return Gateway.find().populate("peripherals");     
+}
 
-router.get('/:id' , async (req, res) =>{
-   Gateway.findOne({"_id": req.params.id}).populate("peripherals")
-   .then(gateway => {
-      res.json(gateway); 
-   });
-     
+//Get one gateway
+router.get('/:id' , async (req, res) =>{      
+   let r=await getGateway(req.params.id);
+   res.status(r.resp).json(r.data);  
 });
+async function getGateway(id){
+    return Gateway.findOne({"_id": req.params.id}).populate("peripherals")
+    .then(gateway=>{
+        return {resp:200, data:gateway};
+    })
+    .catch(error=>{
+        return {resp:401, data:error};
+    });
+}
+
 
 router.post('/', async (req, res) =>{
     const{serialNumber, humanReadableName, ipv4Address} = req.body;

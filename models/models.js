@@ -1,5 +1,6 @@
-import mongoose, { Schema as _Schema, model } from "mongoose";
-const {Schema} = mongoose;
+//import mongoose, { Schema as _Schema, model } from "mongoose";
+const mongoose=require('mongoose');
+const {Schema, model} = mongoose;
 
 const GatewaySchema = new Schema({
     serialNumber: {
@@ -15,7 +16,7 @@ const GatewaySchema = new Schema({
         required: true
     },
     peripheralDevices :[{
-        type: _Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Peripheral"
        
     }]
@@ -43,4 +44,4 @@ const PeripheralSchema = new Schema({
 const Gateway= model("Gateway", GatewaySchema);
 const Peripheral= model("Peripheral", PeripheralSchema);
 
-export default{Gateway, Peripheral };
+module.exports ={Gateway, Peripheral };
