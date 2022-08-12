@@ -1,20 +1,20 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-require('./database');
+const connect = require("mongoose").connect;
 
-const app= express();
-
-//Settings
-//app.set('port',process.env.PORT || 3000);
 let port=process.env.PORT || 3000;
-
-//Middlewares
+const app= express();
 app.use(express.json());
 
+//database connection
+connect(process.env.DATABASE_URL)
+   .then(()=> console.log('DB is connected'))
+   .catch(err => console.error(err));
+
 //Routes
-app.use( '/api/gateway',require('./routes/gatewayroutes'));
-app.use( '/api/peripheral',require('./routes/peripheralroutes'));
+app.use( '/api/gateways',require('./routes/gatewayroutes'));
+app.use( '/api/peripherals',require('./routes/peripheralroutes'));
 
 //Static files
 app.use(express.static(path.join(__dirname,'public')));

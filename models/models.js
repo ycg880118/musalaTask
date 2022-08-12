@@ -1,11 +1,12 @@
-//import mongoose, { Schema as _Schema, model } from "mongoose";
+
 const mongoose=require('mongoose');
 const {Schema, model} = mongoose;
 
 const GatewaySchema = new Schema({
     serialNumber: {
         type: String,
-        required: true
+        required: true,
+        unique : true
     },
     name:{
         type: String,

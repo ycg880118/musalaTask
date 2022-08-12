@@ -3,46 +3,57 @@ const router = express. Router();
 const {Gateway,Peripheral} = require('../models/models');
 
 //List all gateways
-router.get('/' , async (req, res) =>{    
-    let gatewayList=await getAllGateways();
-    res.status(200).json(gatewayList);    
+router.get('/' , async (_req, res) =>{    
+    let r=await getGateways();
+    res.status(r.status).json(r.data);    
 });
-async function getAllGateways(){
-    return Gateway.find().populate("peripherals");     
-}
 
 //Get one gateway
-router.get('/:id' , async (req, res) =>{      
-   let r=await getGateway(req.params.id);
-   res.status(r.resp).json(r.data);  
-});
-async function getGateway(id){
-    return Gateway.findOne({"_id": req.params.id}).populate("peripherals")
-    .then(gateway=>{
-        return {resp:200, data:gateway};
+router.get('/gateway:id' , async (req, res) =>{      
+    let r=await getGateways(req.params.serialNumber);
+    res.status(r.status).json(r.data);  
+ });
+
+async function getGateways(serialNumber=null){
+    return (serialNumber===null?Gateway.find():Gateway.findOne(serialNumber)).populate("peripheralDevices")
+    .then(gateways=>{
+        return {status:200, data:gateways};
     })
     .catch(error=>{
-        return {resp:401, data:error};
+        return {status:404, data:{error:error+""}};
+    }); 
+}
+
+//Add gateway
+router.post('/add', async (req, res) =>{
+    const{serialNumber, name, ipv4Address} = req.body; 
+    console.log(req.body);
+    let validIp=validateIpv4Address(ipv4Address);
+    let r;
+    if(!validIp)
+        r={status:'500',msg:'Invalid Ipv4 address'};
+    else 
+        r=await addGateway(serialNumber, name, ipv4Address);
+    res.status(r.status).json(r.msg);
+});
+async function addGateway(serialNumber, name, ipv4Address){
+    let gateway = new Gateway({serialNumber, name, ipv4Address});
+    return gateway.save()
+    .then(()=>{
+        return {status:200,msg:"Gateway Add Success"};
+    })
+    .catch(error=>{
+        return {status:500,msg:{error:error+""}};
     });
+}
+function validateIpv4Address(ip){
+    //TODO
+    return true;
 }
 
 
-router.post('/', async (req, res) =>{
-    const{serialNumber, humanReadableName, ipv4Address} = req.body;
-    const gateway = new Gateway({serialNumber, humanReadableName, ipv4Address});
-    await gateway.save();
-
-    res.json({status:'Gateway Saved'});
-});
- 
-router.put('/:id', async (req, res) =>{
-
-    const{serialNumber, humanReadableName, ipv4Address} = req.body;
-    const newGateway = {serialNumber, humanReadableName, ipv4Address};
-    await Gateway.findOneAndUpdate({"_id": req.params.id}, newGateway);
-    res.json({status:'Gateway Updated'});
-});
-
+//Delete gateway
+//TODO
 router.delete('/:id', async (req, res) =>{
     Gateway.findOne({"_id": req.params.id}).then(gateway => {
         gateway.peripheralDevices.forEach(peripheral => {
