@@ -3,70 +3,124 @@ const router = express. Router();
 const {Gateway,Peripheral} = require('../models/models');
 
 //List all gateways
-router.get('/' , async (_req, res) =>{    
-    let r=await getGateways();
-    res.status(r.status).json(r.data);    
+router.get('/' , (_req, res) =>{    
+    getGateways().then(r=>{
+        res.status(r.status).json(r.data); 
+    });
+       
 });
 
 //Get one gateway
-router.get('/gateway:id' , async (req, res) =>{      
-    let r=await getGateways(req.params.serialNumber);
-    res.status(r.status).json(r.data);  
+router.get('/gateway/:serialNumber' , (req, res) =>{      
+    getGateways(req.params.serialNumber).then(r=>{
+        res.status(r.status).json(r.data);        
+    });
+    
  });
 
-async function getGateways(serialNumber=null){
-    return (serialNumber===null?Gateway.find():Gateway.findOne(serialNumber)).populate("peripheralDevices")
-    .then(gateways=>{
-        return {status:200, data:gateways};
+function getGateways(serialNumber=null){
+    return (serialNumber===null?Gateway.find():Gateway.findOne({"serialNumber":serialNumber}))
+    .then(gat=>{
+        return {status:200, data: {'result':gat===null?{}:gat}};
     })
     .catch(error=>{
-        return {status:404, data:{error:error+""}};
+        return {status:500, data:{"error":error.toString()}};
     }); 
 }
 
 //Add gateway
 router.post('/add', async (req, res) =>{
-    const{serialNumber, name, ipv4Address} = req.body; 
-    console.log(req.body);
-    let validIp=validateIpv4Address(ipv4Address);
+    const {serialNumber, name, ipv4Address} = req.body;     
     let r;
-    if(!validIp)
-        r={status:'500',msg:'Invalid Ipv4 address'};
+    if(!validateIpv4Address(ipv4Address))
+        r={status:500,msg:{'error':'Invalid Ipv4 address'}};
     else 
         r=await addGateway(serialNumber, name, ipv4Address);
     res.status(r.status).json(r.msg);
 });
-async function addGateway(serialNumber, name, ipv4Address){
-    let gateway = new Gateway({serialNumber, name, ipv4Address});
-    return gateway.save()
+
+function addGateway(serialNumber, name, ipv4Address){
+    return new Gateway({serialNumber, name, ipv4Address}).save()
     .then(()=>{
-        return {status:200,msg:"Gateway Add Success"};
+        return {status:200,msg:{'result':`Gateway ${serialNumber} added successfully`}};
     })
     .catch(error=>{
-        return {status:500,msg:{error:error+""}};
+        return {status:500,msg:{'error':error.toString()}};
     });
 }
-function validateIpv4Address(ip){
-    //TODO
-    return true;
+
+function validateIpv4Address(ipv4){    
+    return /^(?:(?:2[0-4]\d|25[0-5]|1\d{2}|[1-9]?\d)\.){3}(?:2[0-4]\d|25[0-5]|1\d{2}|[1-9]?\d)$/.test(ipv4);
 }
 
 
 //Delete gateway
-//TODO
-router.delete('/:id', async (req, res) =>{
-    Gateway.findOne({"_id": req.params.id}).then(gateway => {
-        gateway.peripheralDevices.forEach(peripheral => {
-            Peripheral.findOneAndRemove({"_id":peripheral}).exec(function (err) {
-                if (err) 
-                console.log(err);
-              });
-            
-        }); 
-     });
-    await Gateway.findOneAndRemove({"_id": req.params.id});
-    res.json({status:'Gateway Deleted'});
+router.delete('/remove/:serialNumber', async (req, res) =>{
+    deleteGateway(req.params.serialNumber).then(r=>{
+        res.status(r.status).json(r.msg);        
+    });
 });
 
+function deleteGateway(serialNumber){      
+    return Gateway.findOneAndRemove({"serialNumber": serialNumber})
+        .then(()=>{  
+            return {status:200,msg:{'result':'Gateway removed'}};})
+        .catch(err=>{
+            return {status:500,msg:{'error':err.toString()}};
+        });   
+}
+
+//Add Peripheral
+router.post('/peripheral/add', (req, res) =>{
+    const {uid, vendor, date, status, gatewayId} = req.body;     
+    addPeripheral(uid, vendor, date, status, gatewayId).then(r=>{
+        res.status(r.status).json(r.msg);
+    })
+    
+});
+
+function addPeripheral(uid, vendor, date, status, gatewayId){
+    
+    return Gateway.findOne({'serialNumber':gatewayId}).then(gateway=>{
+    
+        if(gateway===null)
+            return {status:500,msg:{'error':'gateway not found'}};
+        if(gateway.peripheralDevices.length>=10)
+            return {status:500,msg:{'error':'Only 10 peripheral devices allowed for a gateway'}};
+    
+        let p=new Peripheral({uid, vendor, date, status});
+        gateway.peripheralDevices.push(p);
+        gateway.markModified('peripheralDevices');
+        return gateway.save().then(()=>{
+            return {status:200,msg:{'result':`Peripheral ${uid} added successfully`}};
+        }).catch(err=>{
+            return {status:500,msg:{'error':err.toString()}};
+        });       
+            
+    })
+
+}
+
+//Add Peripheral
+router.delete('/peripheral/remove/:gatewayId/:peripheralId', (req, res) =>{      
+    removePeripheral(req.params.gatewayId, req.params.peripheralId).then(r=>{
+        res.status(r.status).json(r.msg);
+    });    
+});
+
+function removePeripheral(gatewayId, peripheralId){
+    let updateQuery={
+        '$pull': {
+            'peripheralDevices':{ '_id': peripheralId }
+        }
+    };
+    return Gateway.findByIdAndUpdate(gatewayId,updateQuery)
+    .then(()=>{             
+        return {status:200,msg:{'result':`Peripheral ${peripheralId} removed`}}
+     })
+     .catch(err=>{
+         return {status:500,msg:{'error':err.toString()}};
+     });    
+}
 
 module.exports = router;
