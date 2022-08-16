@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express. Router();
+const router = express.Router();
 const {Gateway,Peripheral} = require('../models/models');
 
 //List all gateways
@@ -55,16 +55,16 @@ function validateIpv4Address(ipv4){
 
 
 //Delete gateway
-router.delete('/remove/:serialNumber', async (req, res) =>{
-    deleteGateway(req.params.serialNumber).then(r=>{
+router.delete('/remove/:_id', async (req, res) =>{
+    deleteGateway(req.params._id).then(r=>{
         res.status(r.status).json(r.msg);        
     });
 });
 
-function deleteGateway(serialNumber){      
-    return Gateway.findOneAndRemove({"serialNumber": serialNumber})
+function deleteGateway(_id){      
+    return Gateway.findByIdAndRemove(_id)
         .then(()=>{  
-            return {status:200,msg:{'result':'Gateway removed'}};})
+            return {status:200,msg:{'result':`Gateway ${_id} removed`}};})
         .catch(err=>{
             return {status:500,msg:{'error':err.toString()}};
         });   
@@ -81,7 +81,7 @@ router.post('/peripheral/add', (req, res) =>{
 
 function addPeripheral(uid, vendor, date, status, gatewayId){
     
-    return Gateway.findOne({'serialNumber':gatewayId}).then(gateway=>{
+    return Gateway.findOne({'_id':gatewayId}).then(gateway=>{
     
         if(gateway===null)
             return {status:500,msg:{'error':'gateway not found'}};
