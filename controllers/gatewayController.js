@@ -23,7 +23,7 @@ exports.getGateway = async (req, res) =>{
 exports.addGateway = async (req, res)=>{
     try{        
         await gatewayService.addGateway(req.body);
-        res.status(200).json({'result' : `Gateway ${serialNumber} added successfully`}); 
+        res.status(200).json({'result' : `Gateway ${req.body.serialNumber} added successfully`}); 
     }catch(error){
         res.status(500).json({'error' : error});
     }
@@ -37,6 +37,14 @@ exports.removeGateway = async (req, res)=>{
         res.status(200).json({'result' : `Gateway ${req.params._id} removed successfully`});
     }catch(error){
         res.status(500).json({'error' : error});
+    }
+}
+
+exports.addPeripheral = async (req, res)=>{
+    try{
+        //let gateway = await gatewayService.addPeripheralDevice()
+    }catch(error){
+
     }
 }
 

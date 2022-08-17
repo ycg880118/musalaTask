@@ -18,11 +18,11 @@ exports.removeGateway = (_id) =>{
     return Gateway.findByIdAndRemove(_id);
 }
 
-exports.addPeripheral = (uid, vendor, date, status, gatewayId) =>{
+exports.addPeripheral = (peripheral, gatewayId) =>{
     return Gateway.findById({'_id':gatewayId}).then(gateway=>{ 
         if(!gateway)
             return null;      
-        gateway.peripheralDevices.push(new Peripheral({uid, vendor, date, status}));
+        gateway.peripheralDevices.push(new Peripheral(peripheral));
         gateway.markModified('peripheralDevices');
         return gateway.save()
     });

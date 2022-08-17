@@ -1,5 +1,6 @@
 const mongoose=require('mongoose');
 const {Schema, model} = mongoose;
+const Joi=require('joi');
 
 const PeripheralSchema = new Schema({    
     uid: {
@@ -22,4 +23,16 @@ const PeripheralSchema = new Schema({
 });
 
 const Peripheral= model("Peripheral", PeripheralSchema);
-module.exports = Peripheral;
+
+function validatePeripheral(peripheral){
+    const schema= Joi.object({
+        uid : Joi.number().required(),
+        vendor : Joi.string().required(),
+        date : Joi.string().isoDate().required(),
+        status : Joi.string().required()
+    });
+
+    return schema.validate(peripheral);
+}
+
+module.exports = {Peripheral, validatePeripheral};

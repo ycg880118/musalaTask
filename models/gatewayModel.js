@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 const {Schema, model} = mongoose;
-const PeripheralSchema = require('./peripheralModel').schema;
+const PeripheralSchema = require('./peripheralModel').Peripheral.schema;
 const Joi= require('joi');
 
 const GatewaySchema = new Schema({
@@ -23,7 +23,7 @@ const GatewaySchema = new Schema({
 const Gateway= model("Gateway", GatewaySchema);
 
 function validateGateway(gateway){
-    console.log(gateway);
+    
     const schema =Joi.object({        
         serialNumber : Joi.string().required(),
         name: Joi.string().required(),
@@ -32,4 +32,12 @@ function validateGateway(gateway){
 
     return schema.validate(gateway);
 }
-module.exports = {Gateway, validateGateway};
+
+function validateId(id){
+    const schema= Joi.object({
+        _id:Joi.string().hex().length(24)
+    });
+
+    return schema.validate(id);
+}
+module.exports = {Gateway, validateGateway, validateId};
