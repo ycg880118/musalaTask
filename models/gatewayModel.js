@@ -1,26 +1,6 @@
-
 const mongoose=require('mongoose');
 const {Schema, model} = mongoose;
-
-const PeripheralSchema = new Schema({    
-    uid: {
-        type: Number,
-        required: true,
-        unique : true
-    },
-    vendor:{
-        type: String,
-        required: true
-    },
-    date :{
-        type: Date,
-        required: true
-    },
-    status :{
-        type: String,
-        required: true
-    }
-});
+const PeripheralSchema = require('./peripheralModel').schema;
 
 const GatewaySchema = new Schema({
     serialNumber: {
@@ -39,9 +19,5 @@ const GatewaySchema = new Schema({
     peripheralDevices :[PeripheralSchema]
 });
 
-
-
 const Gateway= model("Gateway", GatewaySchema);
-const Peripheral= model("Peripheral", PeripheralSchema);
-
-module.exports ={Gateway, Peripheral};
+module.exports = Gateway;

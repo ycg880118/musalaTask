@@ -1,9 +1,6 @@
-const connect = require("mongoose").connect;
-const {Gateway,Peripheral} = require('../models/models');
 
-exports.connectToDB =(url)=>{
-    connect(url).then(()=> console.log('DB is connected')).catch(err => console.error(err));
-}
+const Gateway =require('../models/gatewayModel');
+const Peripheral=require('../models/peripheralModel');
 
 exports.getAllGateways = () =>{
     return Gateway.find();
@@ -22,7 +19,8 @@ exports.removeGateway = (_id) =>{
 }
 
 exports.addPeripheral = (uid, vendor, date, status, gatewayId) =>{
-    return Gateway.findOne({'_id':gatewayId}).then(gateway=>{        
+    return Gateway.findById({'_id':gatewayId}).then(gateway=>{ 
+        !gateway && return null;       
         gateway.peripheralDevices.push(new Peripheral({uid, vendor, date, status}));
         gateway.markModified('peripheralDevices');
         return gateway.save()
@@ -37,4 +35,3 @@ exports.removePeripheral = (gatewayId,peripheralId) =>{
     };
     return Gateway.findByIdAndUpdate(gatewayId,updateQuery);
 }
-

@@ -1,9 +1,9 @@
 require('dotenv').config();
 const express = require('express');
+const connect = require("mongoose").connect;
 const path = require('path');
 const cors = require('cors');
-const gateways=require('./routes/gateways');
-//const connect = require("mongoose").connect;
+const gateways=require('./routes/gatewayRoutes');
 
 let port=process.env.PORT || 3000;
 const app= express();
@@ -11,12 +11,11 @@ const app= express();
 app.use(express.json());
 app.use(cors());
 
-//database connection
-/*
+//Connect to db
 connect(process.env.DATABASE_URL)
-   .then(()=> console.log('DB is connected'))
-   .catch(err => console.error(err));
-*/
+.then(()=> console.log('DB is connected'))
+.catch(err => console.error(err));
+
 //Routes
 app.use( '/api/gateways',gateways);
 
