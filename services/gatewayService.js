@@ -1,4 +1,5 @@
 const gatewayDb = require('../db/gatewayDb');
+const {validateGateway} =require('../models/gatewayModel');
 
 exports.getGateways = async () => {
     try {
@@ -16,11 +17,12 @@ exports.getGateway = async (_id) => {
     } 
 }
 
-exports.addGateway = async (serialNumber, name, ipv4Address)=>{
+exports.addGateway = async (params)=>{
     try{
-        if(!(/^(?:(?:2[0-4]\d|25[0-5]|1\d{2}|[1-9]?\d)\.){3}(?:2[0-4]\d|25[0-5]|1\d{2}|[1-9]?\d)$/.test(ipv4Address)))
-            throw (new Error('ipv4Address is invalid'));        
-        return await gatewayDb.addGateway(serialNumber, name, ipv4Address);
+        const {error} = validateGateway(params);
+        if(error)
+            throw (new Error(error.details[0].message));        
+        return await gatewayDb.addGateway(params.serialNumber, params.name, params.ipv4Address);
     }catch(error){
         throw (new Error('Service throws error: '+error.toString()));
     }

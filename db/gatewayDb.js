@@ -1,5 +1,5 @@
 
-const Gateway =require('../models/gatewayModel');
+const {Gateway} =require('../models/gatewayModel');
 const Peripheral=require('../models/peripheralModel');
 
 exports.getAllGateways = () =>{
@@ -20,7 +20,8 @@ exports.removeGateway = (_id) =>{
 
 exports.addPeripheral = (uid, vendor, date, status, gatewayId) =>{
     return Gateway.findById({'_id':gatewayId}).then(gateway=>{ 
-        !gateway && return null;       
+        if(!gateway)
+            return null;      
         gateway.peripheralDevices.push(new Peripheral({uid, vendor, date, status}));
         gateway.markModified('peripheralDevices');
         return gateway.save()

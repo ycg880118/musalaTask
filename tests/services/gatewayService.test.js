@@ -1,10 +1,10 @@
 const gatewayService= require('../../services/gatewayService');
 const gatewayDb= require('../../db/gatewayDb');
-const Gateway = require('../../models/gatewayModel');
+const {Gateway }= require('../../models/gatewayModel');
 
 describe('getGateways' , () =>{
 
-    it('Should return an array of gateways containing all gateways in the db', async () =>{
+    it('Should return an array of gateways containing all gateways in the collection', async () =>{
         gatewayDb.getAllGateways = () =>{  
                     
             return [{_id : '4', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'}];
@@ -51,15 +51,22 @@ describe('getGateway' , () =>{
 describe('addGateway', ()=>{
 
     it('Should throw if ipv4Address is invalid', async () =>{
-        await expect(async () =>{await gatewayService.addGateway('1','name','0.1')}).rejects.toThrow('ipv4Address is invalid');
+        await expect(async () =>{await gatewayService.addGateway({serialNumber:'1',name:'name', ipv4Address:'0.1'})}).rejects.toThrow('ipv4Address');
     });
 
-    it('Should save and return the new gateway if ipv4Address is valid', async()=>{
+    it('Should throw if serialNumber is undefined', async () =>{
+        await expect(async () =>{await gatewayService.addGateway({serialNumber:'',name:'name', ipv4Address:'0.1'})}).rejects.toThrow('serialNumber');
+    });
+
+    it('Should throw if name is undefined', async () =>{
+        await expect(async () =>{await gatewayService.addGateway({serialNumber:'1',name:'', ipv4Address:'0.1'})}).rejects.toThrow('name');
+    });
+
+    it('Should return the new gateway if parameters are valid', async()=>{
         gatewayDb.addGateway = (serialNumber, name, ipv4Address) =>{
             return new Gateway({ serialNumber, name, ipv4Address });
         };
-
-        let gateway=await gatewayService.addGateway('1', 'name', '192.168.1.20');
+        let gateway=await gatewayService.addGateway({serialNumber:'1',name:'name', ipv4Address:'192.168.1.20'});
         expect(gateway).toMatchObject({serialNumber:'1', name:'name', ipv4Address:'192.168.1.20'});
     });
 
@@ -67,7 +74,7 @@ describe('addGateway', ()=>{
         gatewayDb.addGateway = (_serialNumber, _name, _ipv4Address) =>{                       
             throw(new Error('some exception'));
         };
-        await expect(async ()=>{await gatewayService.addGateway('1', 'name', '192.168.1.20')}).rejects.toThrow("Service throws error");
+        await expect(async ()=>{await gatewayService.addGateway({serialNumber:'1',name:'name', ipv4Address:'192.168.1.20'})}).rejects.toThrow("Service throws error");
     });
 
 

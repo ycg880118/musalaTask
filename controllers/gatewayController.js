@@ -21,9 +21,8 @@ exports.getGateway = async (req, res) =>{
 }
 
 exports.addGateway = async (req, res)=>{
-    try{
-        const {serialNumber, name, ipv4Address} = req.body;
-        await gatewayService.addGateway(serialNumber, name, ipv4Address);
+    try{        
+        await gatewayService.addGateway(req.body);
         res.status(200).json({'result' : `Gateway ${serialNumber} added successfully`}); 
     }catch(error){
         res.status(500).json({'error' : error});
