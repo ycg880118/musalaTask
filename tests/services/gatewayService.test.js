@@ -1,11 +1,11 @@
 const gatewayService= require('../../services/gatewayService');
-const gatewayDb= require('../../db/gatewayDb');
+const db= require('../../db/db');
 const {Gateway }= require('../../models/gatewayModel');
 
 describe('getGateways' , () =>{
 
     it('Should return an array of gateways containing all gateways in the collection', async () =>{
-        gatewayDb.getAllGateways = () =>{  
+        db.getAllGateways = () =>{  
                     
             return [{_id : '4', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'}];
         };
@@ -14,7 +14,7 @@ describe('getGateways' , () =>{
     });
 
     it('Should throw an exception containing custom error if db module throws',async ()=>{
-        gatewayDb.getAllGateways = () =>{                     
+        db.getAllGateways = () =>{                     
             throw(new Error('some exception'));
         };
         await expect(async ()=>{await gatewayService.getGateways()}).rejects.toThrow("Gateway service error");
@@ -25,14 +25,14 @@ describe('getGateways' , () =>{
 describe('getGateway' , () =>{
 
     it('Should return the gateway with the given id', async () =>{
-        gatewayDb.getGateway = (id) =>{                      
+        db.getGateway = (id) =>{                      
             return {_id : id, serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'};
         };
         let gateways=await gatewayService.getGateway('54759eb3c090d83494e2d804');
         expect(gateways).toMatchObject({_id : '54759eb3c090d83494e2d804', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'});
     });
     it('Should return null if there is no gateway with the given id', async () =>{
-        gatewayDb.getGateway = (_id) =>{                      
+        db.getGateway = (_id) =>{                      
             return null;
         };
         let gateways=await gatewayService.getGateway('54759eb3c090d83494e2d804');
@@ -44,7 +44,7 @@ describe('getGateway' , () =>{
     });
 
     it('Should throw an exception containing custom error if db module throws',async ()=>{
-        gatewayDb.getGateway = (_id) =>{                       
+        db.getGateway = (_id) =>{                       
             throw(new Error('some exception'));
         };
         await expect(async ()=>{await gatewayService.getGateway('54759eb3c090d83494e2d804')}).rejects.toThrow("Gateway service error");
@@ -67,7 +67,7 @@ describe('addGateway', ()=>{
     });
 
     it('Should return the new gateway if parameters are valid', async()=>{
-        gatewayDb.addGateway = (serialNumber, name, ipv4Address) =>{
+        db.addGateway = (serialNumber, name, ipv4Address) =>{
             return new Gateway({ serialNumber, name, ipv4Address });
         };
         let gateway=await gatewayService.addGateway({serialNumber:'1',name:'name', ipv4Address:'192.168.1.20'});
@@ -75,7 +75,7 @@ describe('addGateway', ()=>{
     });
 
     it('Should throw an exception containing custom error if db module throws',async ()=>{
-        gatewayDb.addGateway = (_serialNumber, _name, _ipv4Address) =>{                       
+        db.addGateway = (_serialNumber, _name, _ipv4Address) =>{                       
             throw(new Error('some exception'));
         };
         await expect(async ()=>{await gatewayService.addGateway({serialNumber:'1',name:'name', ipv4Address:'192.168.1.20'})}).rejects.toThrow("Gateway service error");
@@ -86,7 +86,7 @@ describe('addGateway', ()=>{
 
 describe('removeGateway', ()=>{
     it('Should return null if there is no gateway with the given id', async ()=>{
-        gatewayDb.removeGateway = (_id)=>{
+        db.removeGateway = (_id)=>{
             return null;
         };
         let gateway=await gatewayService.removeGateway('54759eb3c090d83494e2d804');
@@ -94,7 +94,7 @@ describe('removeGateway', ()=>{
     });
 
     it('Should  return the deleted gateway with the given id', async ()=>{
-        gatewayDb.removeGateway = (_id)=>{
+        db.removeGateway = (_id)=>{
             return {_id:_id, serialNumber:'3', name:'name', ipv4Address:'192.168.1.20'};
         };
         let gateway=await gatewayService.removeGateway('54759eb3c090d83494e2d804');
@@ -106,7 +106,7 @@ describe('removeGateway', ()=>{
     });
 
     it('Should throw an exception containing custom error if db module throws',async ()=>{
-        gatewayDb.removeGateway = (_serialNumber, _name, _ipv4Address) =>{                       
+        db.removeGateway = (_serialNumber, _name, _ipv4Address) =>{                       
             throw(new Error('some exception'));
         };
         await expect(async ()=>{await gatewayService.removeGateway('54759eb3c090d83494e2d804')}).rejects.toThrow("Gateway service error");

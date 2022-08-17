@@ -40,13 +40,7 @@ exports.removeGateway = async (req, res)=>{
     }
 }
 
-exports.addPeripheral = async (req, res)=>{
-    try{
-        //let gateway = await gatewayService.addPeripheralDevice()
-    }catch(error){
 
-    }
-}
 
 
 
