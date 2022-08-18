@@ -1,12 +1,12 @@
 const mongoose=require('mongoose');
 const {Schema, model} = mongoose;
-const Joi=require('joi');
+const Joi=require('joi').extend(require('@joi/date'));
+
 
 const PeripheralSchema = new Schema({    
     uid: {
         type: Number,
-        required: true,
-        unique : true
+        required: true
     },
     vendor:{
         type: String,
@@ -28,7 +28,7 @@ function validatePeripheral(peripheral){
     const schema= Joi.object({
         uid : Joi.number().required(),
         vendor : Joi.string().required(),
-        date : Joi.string().isoDate().required(),
+        date : Joi.date().format('YYYY-MM-DD').required(),
         status : Joi.string().required()
     });
 

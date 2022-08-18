@@ -13,11 +13,11 @@ exports.getGateways = async () => {
 exports.getGateway = async (id) => {
     try {
         const {error} = validateId({_id:id});
-        if(error){
+        if(error){            
             throw (new Error('Validation error: '+error.details[0].message)); 
         }
         return await db.getGateway(id);               
-    } catch (error) {
+    } catch (error) {        
         throw (new Error('Gateway service error: '+error.toString()));
     } 
 }

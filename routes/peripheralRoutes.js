@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const gatewayController=require('../controllers/gatewayController');
+const peripheralController=require('../controllers/peripheralController');
 
 //Add peripheral
-router.post('/', gatewayController.addPeripheral);
+router.post('/', peripheralController.addPeripheral);
+router.delete('/:gatewayId/:peripheralId',peripheralController.removePeripheral);
+
+module.exports = router;

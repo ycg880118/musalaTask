@@ -1,6 +1,6 @@
 
 const {Gateway} =require('../models/gatewayModel');
-const Peripheral=require('../models/peripheralModel');
+const {Peripheral}=require('../models/peripheralModel');
 
 exports.getAllGateways = () =>{
     return Gateway.find();
@@ -24,7 +24,7 @@ exports.addPeripheral = (peripheral, gatewayId) =>{
             return null;      
         gateway.peripheralDevices.push(new Peripheral(peripheral));
         gateway.markModified('peripheralDevices');
-        return gateway.save()
+        return gateway.save().then(g => g);
     });
 }
 
@@ -34,5 +34,7 @@ exports.removePeripheral = (gatewayId,peripheralId) =>{
             'peripheralDevices':{ '_id': peripheralId }
         }
     };
-    return Gateway.findByIdAndUpdate(gatewayId,updateQuery);
+    return Gateway.findByIdAndUpdate(gatewayId,updateQuery).then(()=>{
+        return Gateway.findById(gatewayId);
+    });
 }
