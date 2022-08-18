@@ -29,7 +29,19 @@ describe('addPeripheralDevice', ()=>{
         await expect(async ()=>{await peripheralService.addPeripheralDevice(payload)}).rejects.toThrow(/^.*?\bValidation error\b.*?\bstatus\b/);
     });
 
+    it('Should throw an exception if there are already 10 peripherals in the gateway with the given id',async ()=>{    
+        db.getgatewayPeripheralsCount =async (_gatewayId) =>{
+            return 10;
+        }
+        
+        const payload={gatewayId:'54759eb3c090d83494e2d804',peripheral:{uid:1,vendor:'asd',date:'2019-03-13',status:'online'}};
+        await expect(async ()=>{await peripheralService.addPeripheralDevice(payload)}).rejects.toThrow('Validation error: Only 10 peripheral devices allowed for a gateway');
+    });
+
     it('Should return null if there is no gateway with the given id', async ()=>{
+        db.getgatewayPeripheralsCount = async (_gatewayId) =>{
+            return 0;
+        }
         db.addPeripheral = async (_peripheral,_gatewayId)=>{
             return null;
         }
@@ -40,6 +52,9 @@ describe('addPeripheralDevice', ()=>{
     });
 
     it('Should return the gateway where the peripheral was added if parameters are ok', async ()=>{
+        db.getgatewayPeripheralsCount = async (_gatewayId) =>{
+            return 0;
+        }
         db.addPeripheral = async(_peripheral,_gatewayId)=>{
             return {_id:_gatewayId, serialNumber:'SD342', name:'name',ipv4Address:'192.168.1.20',peripheralDevices:[{uid:1,vendor:'asd',date:'2019-03-13',status:'offline'}]};
         }
@@ -50,6 +65,9 @@ describe('addPeripheralDevice', ()=>{
     });
 
     it('Should throw a custom exception if db module throws', async ()=>{
+        db.getgatewayPeripheralsCount = async (_gatewayId) =>{
+            return 0;
+        }
         db.addPeripheral = async(_peripheral,_gatewayId)=>{
             throw (new Error('some error'));
         }

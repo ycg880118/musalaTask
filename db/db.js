@@ -35,6 +35,12 @@ exports.removePeripheral = (gatewayId,peripheralId) =>{
         }
     };
     return Gateway.findByIdAndUpdate(gatewayId,updateQuery).then(()=>{
-        return Gateway.findById(gatewayId);
+        return Gateway.findById(gatewayId);  //return this because Gateway.findByIdAndUpdate return the gateway with the peripheral still in it
     });
+}
+
+exports.getgatewayPeripheralsCount = (gatewayId) =>{
+    return Gateway.findById(gatewayId).then(gateway => {
+        return !gateway?0:gateway.peripheralDevices.length;
+    })
 }

@@ -10,6 +10,9 @@ exports.addPeripheralDevice = async (params)=>{
         const gatewayIdValidationError = validateId({_id:params.gatewayId}).error;
         if(gatewayIdValidationError)
             throw (new Error('Validation error: '+ gatewayIdValidationError.details[0].message));
+        const gatewayPeripheralsCount = await db.getgatewayPeripheralsCount(params.gatewayId);
+        if(gatewayPeripheralsCount >= 10)
+            throw (new Error('Validation error: Only 10 peripheral devices allowed for a gateway'));
         return await db.addPeripheral(params.peripheral, params.gatewayId);
     }catch(error){
         throw (new Error('Peripheral service error: '+error.toString()));
