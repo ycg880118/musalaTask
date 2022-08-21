@@ -1,8 +1,5 @@
 const mongoose=require('mongoose');
 const {Schema, model} = mongoose;
-const Joi=require('joi').extend(require('@joi/date'));
-
-
 const PeripheralSchema = new Schema({    
     uid: {
         type: Number,
@@ -22,17 +19,5 @@ const PeripheralSchema = new Schema({
     }
 });
 
-const Peripheral= model("Peripheral", PeripheralSchema);
+exports.Peripheral= model("Peripheral", PeripheralSchema);
 
-function validatePeripheral(peripheral){
-    const schema= Joi.object({
-        uid : Joi.number().required(),
-        vendor : Joi.string().required(),
-        date : Joi.date().format('YYYY-MM-DD').required(),
-        status : Joi.string().required()
-    });
-
-    return schema.validate(peripheral);
-}
-
-module.exports = {Peripheral, validatePeripheral};

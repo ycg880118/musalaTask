@@ -7,10 +7,10 @@ describe('getGateways' , () =>{
     it('Should return an array of gateways containing all gateways in the collection', async () =>{
         db.getAllGateways = () =>{  
                     
-            return [{_id : '4', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'}];
+            return [{_id : '54759eb3c090d83494e2d804', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'}];
         };
         let gateways=await gatewayService.getGateways();
-        expect(gateways).toMatchObject([{_id : '4', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'}]);
+        expect(gateways).toMatchObject([{_id : '54759eb3c090d83494e2d804', serialNumber:'3',name:'name', ipv4Address: '192.168.1.20'}]);
     });
 
     it('Should throw an exception containing custom error if db module throws',async ()=>{
@@ -39,10 +39,6 @@ describe('getGateway' , () =>{
         expect(gateways).toBe(null);
     });
 
-    it('Should throw an exception if _id is not valid id',async ()=>{        
-        await expect(async ()=>{await gatewayService.removeGateway('1')}).rejects.toThrow("Validation error");
-    });
-
     it('Should throw an exception containing custom error if db module throws',async ()=>{
         db.getGateway = (_id) =>{                       
             throw(new Error('some exception'));
@@ -54,19 +50,7 @@ describe('getGateway' , () =>{
 
 describe('addGateway', ()=>{
 
-    it('Should throw if ipv4Address is invalid', async () =>{
-        await expect(async () =>{await gatewayService.addGateway({serialNumber:'1',name:'name', ipv4Address:'0.1'})}).rejects.toThrow('ipv4Address');
-    });
-
-    it('Should throw if serialNumber is empty', async () =>{
-        await expect(async () =>{await gatewayService.addGateway({serialNumber:'',name:'name', ipv4Address:'0.1'})}).rejects.toThrow('serialNumber');
-    });
-
-    it('Should throw if name is empty', async () =>{
-        await expect(async () =>{await gatewayService.addGateway({serialNumber:'1',name:'', ipv4Address:'0.1'})}).rejects.toThrow('name');
-    });
-
-    it('Should return the new gateway if parameters are valid', async()=>{
+    it('Should return the new gateway', async()=>{
         db.addGateway = (serialNumber, name, ipv4Address) =>{
             return new Gateway({ serialNumber, name, ipv4Address });
         };
@@ -93,7 +77,7 @@ describe('removeGateway', ()=>{
         expect(gateway).toBe(null);
     });
 
-    it('Should  return the deleted gateway with the given id', async ()=>{
+    it('Should return the deleted gateway', async ()=>{
         db.removeGateway = (_id)=>{
             return {_id:_id, serialNumber:'3', name:'name', ipv4Address:'192.168.1.20'};
         };
@@ -101,10 +85,7 @@ describe('removeGateway', ()=>{
         expect(gateway).toMatchObject({_id:'54759eb3c090d83494e2d804', serialNumber:'3', name:'name', ipv4Address:'192.168.1.20'});
     });
 
-    it('Should throw an exception if _id is not valid id',async ()=>{        
-        await expect(async ()=>{await gatewayService.removeGateway('1')}).rejects.toThrow("Validation error");
-    });
-
+    
     it('Should throw an exception containing custom error if db module throws',async ()=>{
         db.removeGateway = (_serialNumber, _name, _ipv4Address) =>{                       
             throw(new Error('some exception'));
